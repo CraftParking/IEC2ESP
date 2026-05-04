@@ -12,8 +12,8 @@ def indent(indent_level: int) -> str:
     return INDENT * indent_level
 
 
-def generate_full_program(ast) -> str:
-    pin_map = build_pin_map(ast)
+def generate_full_program(ast, io_mapping: dict | None = None) -> str:
+    pin_map = build_pin_map(ast, io_mapping)
     timers = collect_timers(ast)
     definitions = generate_pin_definitions(pin_map)
     timer_type = generate_timer_type(timers)
@@ -132,7 +132,10 @@ def generate_timer_input(node: TimerNode, pin_map: dict) -> str:
     return VALUE_MACROS[node.in_value]
 
 
-def build_pin_map(ast) -> dict:
+def build_pin_map(ast, io_mapping: dict | None = None) -> dict:
+    if io_mapping is not None:
+        return build_pin_map_from_mapping(io_mapping)
+
     inputs, outputs = collect_variables(ast)
     used_pins = set()
     pin_map = {"inputs": {}, "outputs": {}}
@@ -157,6 +160,24 @@ def build_pin_map(ast) -> dict:
         }
         used_pins.add(next_output_pin)
         next_output_pin += 1
+
+    return pin_map
+
+
+def build_pin_map_from_mapping(io_mapping: dict) -> dict:
+    pin_map = {"inputs": {}, "outputs": {}}
+
+    for variable, config in io_mapping.items():
+        pin_type = config["type"]
+        target = "inputs" if pin_type == "input" else "outputs"
+        pin_map[target][variable] = {
+            "macro": make_pin_macro(variable),
+            "pin": config["pin"],
+        }
+        if pin_type == "input":
+            pin_map[target][variable]["pullup"] = config.get("pullup", False)
+        else:
+            pin_map[target][variable]["state"] = make_state_variable(variable)
 
     return pin_map
 
@@ -205,7 +226,8 @@ def generate_pin_definitions(pin_map: dict) -> str:
 def generate_pin_setup(pin_map: dict) -> str:
     lines = []
     for variable in pin_map["inputs"].values():
-        lines.append(f"{indent(1)}pinMode({variable['macro']}, INPUT);")
+        mode = "INPUT_PULLUP" if variable.get("pullup", False) else "INPUT"
+        lines.append(f"{indent(1)}pinMode({variable['macro']}, {mode});")
     for variable in pin_map["outputs"].values():
         lines.append(f"{indent(1)}pinMode({variable['macro']}, OUTPUT);")
     return "\n".join(lines)

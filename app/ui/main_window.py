@@ -1,5 +1,6 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QFileDialog,
     QGridLayout,
@@ -45,6 +46,7 @@ class IOMappingWidget(QWidget):
         header.addWidget(QLabel("Pin"), 0, 0)
         header.addWidget(QLabel("Tag Name"), 0, 1)
         header.addWidget(QLabel("Type"), 0, 2)
+        header.addWidget(QLabel("Pull-Up"), 0, 3)
 
         self.grid = QGridLayout()
         self.grid.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -78,18 +80,27 @@ class IOMappingWidget(QWidget):
             tag_input = QLineEdit()
             pin_type = QComboBox()
             pin_type.addItems(self.PIN_TYPES)
+            pullup_checkbox = QCheckBox()
+            pullup_checkbox.setChecked(False)
             pin_type.currentTextChanged.connect(
-                lambda selected_type, field=tag_input: self.update_tag_field(field, selected_type)
+                lambda selected_type, field=tag_input, checkbox=pullup_checkbox: self.update_row_state(
+                    field,
+                    checkbox,
+                    selected_type,
+                )
             )
+            self.update_row_state(tag_input, pullup_checkbox, pin_type.currentText())
 
             self.grid.addWidget(pin_label, row, 0, alignment=Qt.AlignmentFlag.AlignTop)
             self.grid.addWidget(tag_input, row, 1, alignment=Qt.AlignmentFlag.AlignTop)
             self.grid.addWidget(pin_type, row, 2, alignment=Qt.AlignmentFlag.AlignTop)
+            self.grid.addWidget(pullup_checkbox, row, 3, alignment=Qt.AlignmentFlag.AlignTop)
             self.rows.append(
                 {
                     "pin": pin_number,
                     "tag_input": tag_input,
                     "type_combo": pin_type,
+                    "pullup_checkbox": pullup_checkbox,
                 }
             )
 
@@ -100,11 +111,16 @@ class IOMappingWidget(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
-    def update_tag_field(self, tag_input: QLineEdit, pin_type: str) -> None:
+    def update_row_state(self, tag_input: QLineEdit, pullup_checkbox: QCheckBox, pin_type: str) -> None:
         is_logic_pin = pin_type in ("Input", "Output")
         tag_input.setEnabled(is_logic_pin)
         if not is_logic_pin:
             tag_input.clear()
+
+        is_input = pin_type == "Input"
+        pullup_checkbox.setEnabled(is_input)
+        if not is_input:
+            pullup_checkbox.setChecked(False)
 
     def get_mapping(self) -> dict:
         mapping = {}
@@ -117,6 +133,7 @@ class IOMappingWidget(QWidget):
                 mapping[tag_name] = {
                     "pin": row["pin"],
                     "type": pin_type.lower(),
+                    "pullup": row["pullup_checkbox"].isChecked() if pin_type == "Input" else False,
                 }
 
         return mapping
@@ -127,6 +144,7 @@ class IOMappingWidget(QWidget):
                 "pin": row["pin"],
                 "tag": row["tag_input"].text(),
                 "type": row["type_combo"].currentText(),
+                "pullup": row["pullup_checkbox"].isChecked(),
             }
             for row in self.rows
         ]
@@ -223,7 +241,7 @@ class MainWindow(QMainWindow):
                 return
 
             st_code = ladder_to_st(ladder_code)
-            c_code = compile_st_to_c(st_code)
+            c_code = compile_st_to_c(st_code, self.get_mapping())
             self.output_viewer.setPlainText(c_code)
         except Exception as error:
             self.output_viewer.setPlainText(f"Error: {error}")
