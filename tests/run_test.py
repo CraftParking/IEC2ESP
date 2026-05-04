@@ -8,11 +8,11 @@ from app.core.compiler import compile_st_to_c
 
 code = """
 IF input1 THEN
-output1 := TRUE;
+timer1(IN:=TRUE, PT:=2000);
 END_IF;
 
-IF input2 THEN
-output2 := TRUE;
+IF timer1.Q THEN
+output1 := TRUE;
 END_IF;
 """
 

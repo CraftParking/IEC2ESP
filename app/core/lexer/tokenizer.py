@@ -4,6 +4,11 @@ import re
 TOKEN_PATTERNS = [
     ("ASSIGN", r":="),
     ("SEMICOLON", r";"),
+    ("LPAREN", r"\("),
+    ("RPAREN", r"\)"),
+    ("COMMA", r","),
+    ("DOT", r"\."),
+    ("NUMBER", r"\d+"),
     ("IF", r"\bIF\b"),
     ("THEN", r"\bTHEN\b"),
     ("ELSE", r"\bELSE\b"),
