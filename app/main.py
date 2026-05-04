@@ -1,14 +1,11 @@
 import sys
+from pathlib import Path
 
-from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow
+from PyQt6.QtWidgets import QApplication
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-class MainWindow(QMainWindow):
-    def __init__(self) -> None:
-        super().__init__()
-        self.setWindowTitle("IEC2ESP")
-        self.setMinimumSize(900, 600)
-        self.setCentralWidget(QLabel("IEC2ESP"))
+from ui.main_window import MainWindow
 
 
 def main() -> int:

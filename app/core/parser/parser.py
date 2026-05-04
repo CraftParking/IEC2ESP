@@ -52,6 +52,25 @@ class Parser:
         return IfNode(condition, true_branch, false_branch)
 
     def parse_condition(self):
+        parts = [self.parse_condition_token()]
+        while self.current()[0] not in ("THEN", "EOF"):
+            current_type, value = self.current()
+            if current_type not in ("AND", "OR", "LPAREN", "RPAREN", "IDENTIFIER", "DOT"):
+                break
+            if current_type == "IDENTIFIER":
+                parts.append(self.parse_condition_part())
+            else:
+                parts.append(value)
+                self.eat(current_type)
+        return " ".join(parts)
+
+    def parse_condition_token(self):
+        if self.current()[0] == "LPAREN":
+            self.eat("LPAREN")
+            return "("
+        return self.parse_condition_part()
+
+    def parse_condition_part(self):
         condition = self.eat("IDENTIFIER")
         if self.current()[0] == "DOT":
             self.eat("DOT")

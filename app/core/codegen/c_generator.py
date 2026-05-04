@@ -17,6 +17,7 @@ def generate_full_program(ast) -> str:
     timers = collect_timers(ast)
     definitions = generate_pin_definitions(pin_map)
     timer_type = generate_timer_type(timers)
+    timer_update_function = generate_timer_update_function(timers)
     timer_declarations = generate_timer_declarations(timers)
     output_states = generate_output_state_declarations(pin_map)
     setup = "\n".join(
@@ -28,7 +29,9 @@ def generate_full_program(ast) -> str:
     writes = generate_output_writes(pin_map)
     loop_body = "\n".join(part for part in (resets, timer_logic, logic, writes) if part)
     declarations = "\n\n".join(
-        part for part in (timer_type, timer_declarations, output_states) if part
+        part
+        for part in (timer_type, timer_update_function, timer_declarations, output_states)
+        if part
     )
 
     return (
@@ -102,25 +105,25 @@ def generate_timer(node: TimerNode, pin_map: dict, indent_level: int = 0) -> str
     in_value = generate_timer_input(node, pin_map)
     return (
         f"{indent(indent_level)}{node.name}.IN = {in_value};\n"
-        f"{indent(indent_level)}if ({node.name}.IN) {{\n"
-        f"{indent(indent_level + 1)}if ({node.name}.startTime == 0) {{\n"
-        f"{indent(indent_level + 2)}{node.name}.startTime = millis();\n"
-        f"{indent(indent_level + 1)}}}\n"
-        f"{indent(indent_level + 1)}if (millis() - {node.name}.startTime >= {node.name}.PT) {{\n"
-        f"{indent(indent_level + 2)}{node.name}.Q = true;\n"
-        f"{indent(indent_level + 1)}}}\n"
-        f"{indent(indent_level)}}} else {{\n"
-        f"{indent(indent_level + 1)}{node.name}.startTime = 0;\n"
-        f"{indent(indent_level + 1)}{node.name}.Q = false;\n"
-        f"{indent(indent_level)}}}"
+        f"{indent(indent_level)}updateTON(&{node.name});"
     )
 
 
 def generate_condition(condition: str, pin_map: dict) -> str:
-    if "." in condition:
-        return condition
-    condition_pin = pin_map["inputs"][condition]["macro"]
-    return f"digitalRead({condition_pin})"
+    tokens = []
+    for token in tokenize_condition(condition):
+        if token == "AND":
+            tokens.append("&&")
+        elif token == "OR":
+            tokens.append("||")
+        elif token in ("(", ")"):
+            tokens.append(token)
+        elif "." in token:
+            tokens.append(token)
+        else:
+            condition_pin = pin_map["inputs"][token]["macro"]
+            tokens.append(f"digitalRead({condition_pin})")
+    return " ".join(tokens).replace("( ", "(").replace(" )", ")")
 
 
 def generate_timer_input(node: TimerNode, pin_map: dict) -> str:
@@ -171,8 +174,8 @@ def collect_variables(ast) -> tuple[list[str], list[str]]:
             for statement in node.statements:
                 visit(statement)
         elif isinstance(node, IfNode):
-            if "." not in node.condition:
-                add_once(inputs, node.condition)
+            for variable in collect_condition_inputs(node.condition):
+                add_once(inputs, variable)
             for statement in node.true_branch:
                 visit(statement)
             for statement in node.false_branch:
@@ -180,8 +183,9 @@ def collect_variables(ast) -> tuple[list[str], list[str]]:
         elif isinstance(node, AssignNode):
             add_once(outputs, node.variable)
         elif isinstance(node, TimerNode):
-            if node.input_source and "." not in node.input_source:
-                add_once(inputs, node.input_source)
+            if node.input_source:
+                for variable in collect_condition_inputs(node.input_source):
+                    add_once(inputs, variable)
         else:
             raise TypeError(f"Unsupported AST node: {type(node).__name__}")
 
@@ -241,6 +245,26 @@ def generate_timer_type(timers: list[TimerNode]) -> str:
     )
 
 
+def generate_timer_update_function(timers: list[TimerNode]) -> str:
+    if not timers:
+        return ""
+    return (
+        "void updateTON(TON *t) {\n"
+        f"{indent(1)}if (t->IN) {{\n"
+        f"{indent(2)}if (t->startTime == 0) {{\n"
+        f"{indent(3)}t->startTime = millis();\n"
+        f"{indent(2)}}}\n"
+        f"{indent(2)}if (millis() - t->startTime >= t->PT) {{\n"
+        f"{indent(3)}t->Q = true;\n"
+        f"{indent(2)}}}\n"
+        f"{indent(1)}}} else {{\n"
+        f"{indent(2)}t->startTime = 0;\n"
+        f"{indent(2)}t->Q = false;\n"
+        f"{indent(1)}}}\n"
+        "}"
+    )
+
+
 def generate_timer_declarations(timers: list[TimerNode]) -> str:
     return "\n".join(f"TON {timer.name};" for timer in timers)
 
@@ -284,3 +308,20 @@ def make_pin_macro(variable: str) -> str:
 
 def make_state_variable(variable: str) -> str:
     return f"{variable}_state"
+
+
+def split_condition(condition: str) -> list[str]:
+    return [
+        token
+        for token in tokenize_condition(condition)
+        if token not in ("AND", "OR", "(", ")")
+    ]
+
+
+def collect_condition_inputs(condition: str) -> list[str]:
+    return [part for part in split_condition(condition) if "." not in part]
+
+
+def tokenize_condition(condition: str) -> list[str]:
+    spaced = condition.replace("(", " ( ").replace(")", " ) ")
+    return [token for token in spaced.split() if token]

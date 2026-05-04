@@ -13,6 +13,8 @@ TOKEN_PATTERNS = [
     ("THEN", r"\bTHEN\b"),
     ("ELSE", r"\bELSE\b"),
     ("END_IF", r"\bEND_IF\b"),
+    ("AND", r"\bAND\b"),
+    ("OR", r"\bOR\b"),
     ("TRUE", r"\bTRUE\b"),
     ("FALSE", r"\bFALSE\b"),
     ("IDENTIFIER", r"\b[A-Za-z_][A-Za-z0-9_]*\b"),

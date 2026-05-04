@@ -3,18 +3,14 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.core.compiler import compile_st_to_c
+from app.core.compiler import compile_ladder_to_c
 
 
 code = """
-IF input1 THEN
-timer1(IN:=TRUE, PT:=2000);
-END_IF;
-
-IF timer1.Q THEN
-output1 := TRUE;
-END_IF;
+input1 -> output1
+input1 & input2 -> output2
+sensorA & sensorB & sensorC -> motor1
 """
 
 
-print(compile_st_to_c(code))
+print(compile_ladder_to_c(code))
