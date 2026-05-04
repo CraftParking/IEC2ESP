@@ -1,3 +1,4 @@
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -20,6 +21,7 @@ from PyQt6.QtWidgets import (
 
 from app.core.compiler import compile_st_to_c
 from app.core.ladder.ladder_to_st import ladder_to_st
+from app.core.validation import validation
 
 
 class IOMappingWidget(QWidget):
@@ -39,16 +41,28 @@ class IOMappingWidget(QWidget):
         controls.addWidget(self.pin_count)
         controls.addStretch()
 
+        header = QGridLayout()
+        header.addWidget(QLabel("Pin"), 0, 0)
+        header.addWidget(QLabel("Tag Name"), 0, 1)
+        header.addWidget(QLabel("Type"), 0, 2)
+
         self.grid = QGridLayout()
+        self.grid.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.grid_container = QWidget()
-        self.grid_container.setLayout(self.grid)
+        grid_container_layout = QVBoxLayout()
+        grid_container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        grid_container_layout.addLayout(self.grid)
+        grid_container_layout.addStretch()
+        self.grid_container.setLayout(grid_container_layout)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.grid_container)
 
         layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.addLayout(controls)
+        layout.addLayout(header)
         layout.addWidget(scroll_area)
         self.setLayout(layout)
 
@@ -58,12 +72,8 @@ class IOMappingWidget(QWidget):
         self.clear_grid()
         self.rows = []
 
-        self.grid.addWidget(QLabel("Pin"), 0, 0)
-        self.grid.addWidget(QLabel("Tag Name"), 0, 1)
-        self.grid.addWidget(QLabel("Type"), 0, 2)
-
-        for row in range(1, pin_count + 1):
-            pin_number = row - 1
+        for row in range(pin_count):
+            pin_number = row
             pin_label = QLabel(f"GPIO {pin_number}")
             tag_input = QLineEdit()
             pin_type = QComboBox()
@@ -72,9 +82,9 @@ class IOMappingWidget(QWidget):
                 lambda selected_type, field=tag_input: self.update_tag_field(field, selected_type)
             )
 
-            self.grid.addWidget(pin_label, row, 0)
-            self.grid.addWidget(tag_input, row, 1)
-            self.grid.addWidget(pin_type, row, 2)
+            self.grid.addWidget(pin_label, row, 0, alignment=Qt.AlignmentFlag.AlignTop)
+            self.grid.addWidget(tag_input, row, 1, alignment=Qt.AlignmentFlag.AlignTop)
+            self.grid.addWidget(pin_type, row, 2, alignment=Qt.AlignmentFlag.AlignTop)
             self.rows.append(
                 {
                     "pin": pin_number,
@@ -110,6 +120,16 @@ class IOMappingWidget(QWidget):
                 }
 
         return mapping
+
+    def get_validation_mapping(self) -> list[dict]:
+        return [
+            {
+                "pin": row["pin"],
+                "tag": row["tag_input"].text(),
+                "type": row["type_combo"].currentText(),
+            }
+            for row in self.rows
+        ]
 
 
 class MainWindow(QMainWindow):
@@ -185,6 +205,9 @@ class MainWindow(QMainWindow):
     def get_mapping(self) -> dict:
         return self.io_mapping_widget.get_mapping()
 
+    def get_validation_mapping(self) -> list[dict]:
+        return self.io_mapping_widget.get_validation_mapping()
+
     def change_page(self, current: QTreeWidgetItem, previous: QTreeWidgetItem) -> None:
         if current is self.io_mapping_item:
             self.pages.setCurrentWidget(self.io_mapping_page)
@@ -194,6 +217,11 @@ class MainWindow(QMainWindow):
     def compile_ladder(self) -> None:
         try:
             ladder_code = self.input_editor.toPlainText()
+            errors = validation(self.get_validation_mapping(), ladder_code)
+            if errors:
+                self.output_viewer.setPlainText("\n".join(errors))
+                return
+
             st_code = ladder_to_st(ladder_code)
             c_code = compile_st_to_c(st_code)
             self.output_viewer.setPlainText(c_code)
