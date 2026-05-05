@@ -1,4 +1,4 @@
-LOGIC_TYPES = {"Input", "Output"}
+LOGIC_TYPES = {"Digital Input", "Digital Output", "Analog Input", "Analog Output", "PWM Output", "UART TX", "UART RX"}
 
 
 def validation(mapping, ladder_code: str) -> list[str]:
@@ -6,6 +6,10 @@ def validation(mapping, ladder_code: str) -> list[str]:
     tag_map = {}
     seen_tags = set()
     seen_pins = set()
+
+    print(f"DEBUG: Received {len(mapping)} rows in validation")
+    for row in mapping:
+        print(f"DEBUG: Row - pin={row['pin']}, tag='{row['tag']}', type='{row['type']}'")
 
     for row in mapping:
         pin = row["pin"]
@@ -16,7 +20,11 @@ def validation(mapping, ladder_code: str) -> list[str]:
             errors.append(f"[ERROR] GPIO {pin} assigned multiple times")
         seen_pins.add(pin)
 
-        if pin_type in LOGIC_TYPES and not tag:
+        # Check if type is a logic type (contains Input or Output)
+        type_lower = pin_type.lower()
+        is_logic_type = "input" in type_lower or "output" in type_lower
+        
+        if is_logic_type and not tag:
             errors.append(f"[ERROR] GPIO {pin} is {pin_type} but has no tag name")
             continue
 
@@ -24,8 +32,14 @@ def validation(mapping, ladder_code: str) -> list[str]:
             if tag in seen_tags:
                 errors.append(f"[ERROR] duplicate tag name: {tag}")
             seen_tags.add(tag)
-            if pin_type in LOGIC_TYPES:
-                tag_map[tag] = {"pin": pin, "type": pin_type.lower()}
+            if is_logic_type:
+                # Normalize type for comparison: "Digital Input" -> "input", "UART TX" -> "input"
+                if "input" in type_lower:
+                    tag_map[tag] = {"pin": pin, "type": "input"}
+                elif "output" in type_lower:
+                    tag_map[tag] = {"pin": pin, "type": "output"}
+    
+    print(f"DEBUG: Built tag_map with {len(tag_map)} entries: {tag_map}")
 
     errors.extend(validate_ladder_tags(tag_map, ladder_code))
     return errors

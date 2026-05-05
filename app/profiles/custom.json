@@ -1,0 +1,5 @@
+{
+  "name": "Custom",
+  "allowed_types": ["Input", "Output", "Power", "Ground", "TX", "RX", "PWM", "Analog", "Reserved"],
+  "pull_support": true
+}

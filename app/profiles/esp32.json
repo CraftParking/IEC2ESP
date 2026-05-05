@@ -1,0 +1,341 @@
+{
+  "name": "ESP32",
+  "pin_count": 40,
+  "type_mapping": {
+    "digital_in": "Digital Input",
+    "digital_out": "Digital Output",
+    "analog_in": "Analog Input",
+    "analog_out": "Analog Output",
+    "pwm": "PWM Output",
+    "uart_tx": "UART TX",
+    "uart_rx": "UART RX"
+  },
+  "pins": [
+    {
+      "pin": 0,
+      "label": "GPIO 0",
+      "tag": "",
+      "pull": "up",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "flags": ["boot_pin"],
+      "note": "BOOT - affects boot mode, use with caution"
+    },
+    {
+      "pin": 1,
+      "label": "GPIO 1",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_tx", "digital_out"],
+      "note": "UART TX - used for serial/programming"
+    },
+    {
+      "pin": 2,
+      "label": "GPIO 2",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "flags": ["boot_pin"],
+      "note": "BOOT - affects boot mode, use with caution"
+    },
+    {
+      "pin": 3,
+      "label": "GPIO 3",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_rx", "digital_in"],
+      "note": "UART RX - used for serial/programming"
+    },
+    {
+      "pin": 4,
+      "label": "GPIO 4",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 5,
+      "label": "GPIO 5",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 6,
+      "label": "GPIO 6",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "FLASH - DO NOT USE"
+    },
+    {
+      "pin": 7,
+      "label": "GPIO 7",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "FLASH - DO NOT USE"
+    },
+    {
+      "pin": 8,
+      "label": "GPIO 8",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "FLASH - DO NOT USE"
+    },
+    {
+      "pin": 9,
+      "label": "GPIO 9",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "FLASH - DO NOT USE"
+    },
+    {
+      "pin": 10,
+      "label": "GPIO 10",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "FLASH - DO NOT USE"
+    },
+    {
+      "pin": 11,
+      "label": "GPIO 11",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "FLASH - DO NOT USE"
+    },
+    {
+      "pin": 12,
+      "label": "GPIO 12",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "flags": ["boot_pin"],
+      "note": "BOOT - affects boot mode, use with caution"
+    },
+    {
+      "pin": 13,
+      "label": "GPIO 13",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 14,
+      "label": "GPIO 14",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 15,
+      "label": "GPIO 15",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "flags": ["boot_pin"],
+      "note": "BOOT - affects boot mode, use with caution"
+    },
+    {
+      "pin": 16,
+      "label": "GPIO 16",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 17,
+      "label": "GPIO 17",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 18,
+      "label": "GPIO 18",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 19,
+      "label": "GPIO 19",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 20,
+      "label": "GPIO 20",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_out"]
+    },
+    {
+      "pin": 21,
+      "label": "GPIO 21",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 22,
+      "label": "GPIO 22",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 23,
+      "label": "GPIO 23",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 24,
+      "label": "GPIO 24",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "INVALID - DO NOT USE"
+    },
+    {
+      "pin": 25,
+      "label": "GPIO 25",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in", "analog_out"],
+      "note": "DAC - supports Analog Output"
+    },
+    {
+      "pin": 26,
+      "label": "GPIO 26",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in", "analog_out"],
+      "note": "DAC - supports Analog Output"
+    },
+    {
+      "pin": 27,
+      "label": "GPIO 27",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 28,
+      "label": "GPIO 28",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "INVALID - DO NOT USE"
+    },
+    {
+      "pin": 29,
+      "label": "GPIO 29",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "INVALID - DO NOT USE"
+    },
+    {
+      "pin": 30,
+      "label": "GPIO 30",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "INVALID - DO NOT USE"
+    },
+    {
+      "pin": 31,
+      "label": "GPIO 31",
+      "tag": "",
+      "pull": "none",
+      "capabilities": [],
+      "flags": ["reserved"],
+      "note": "INVALID - DO NOT USE"
+    },
+    {
+      "pin": 32,
+      "label": "GPIO 32",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 33,
+      "label": "GPIO 33",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 34,
+      "label": "GPIO 34",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "analog_in"],
+      "flags": ["input_only", "no_pull"],
+      "note": "INPUT-ONLY - no output, no pull support"
+    },
+    {
+      "pin": 35,
+      "label": "GPIO 35",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "analog_in"],
+      "flags": ["input_only", "no_pull"],
+      "note": "INPUT-ONLY - no output, no pull support"
+    },
+    {
+      "pin": 36,
+      "label": "GPIO 36",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "analog_in"],
+      "flags": ["input_only", "no_pull"],
+      "note": "INPUT-ONLY - no output, no pull support"
+    },
+    {
+      "pin": 37,
+      "label": "GPIO 37",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "analog_in"],
+      "flags": ["input_only", "no_pull"],
+      "note": "INPUT-ONLY - no output, no pull support"
+    },
+    {
+      "pin": 38,
+      "label": "GPIO 38",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "analog_in"],
+      "flags": ["input_only", "no_pull"],
+      "note": "INPUT-ONLY - no output, no pull support"
+    },
+    {
+      "pin": 39,
+      "label": "GPIO 39",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "analog_in"],
+      "flags": ["input_only", "no_pull"],
+      "note": "INPUT-ONLY - no output, no pull support"
+    }
+  ]
+}

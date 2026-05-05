@@ -12,32 +12,47 @@ def indent(indent_level: int) -> str:
     return INDENT * indent_level
 
 
-def generate_full_program(ast, io_mapping: dict | None = None) -> str:
+def generate_full_program(ast, io_mapping: dict | None = None, controller_config: dict | None = None) -> str:
     pin_map = build_pin_map(ast, io_mapping)
     timers = collect_timers(ast)
+    
+    # WiFi code generation (conditional)
+    wifi_includes = generate_wifi_includes(controller_config)
+    wifi_globals = generate_wifi_globals(controller_config)
+    wifi_init_function = generate_wifi_init_function(controller_config)
+    wifi_setup_call = generate_wifi_setup_call(controller_config)
+    
     definitions = generate_pin_definitions(pin_map)
     timer_type = generate_timer_type(timers)
     timer_update_function = generate_timer_update_function(timers)
     timer_declarations = generate_timer_declarations(timers)
     output_states = generate_output_state_declarations(pin_map)
-    setup = "\n".join(
-        part for part in (generate_pin_setup(pin_map), generate_timer_setup(timers)) if part
-    )
+    
+    # Combine setup: WiFi init (if enabled) + pin setup + timer setup
+    setup_parts = [wifi_setup_call, generate_pin_setup(pin_map), generate_timer_setup(timers)]
+    setup = "\n".join(part for part in setup_parts if part)
+    
     resets = generate_output_state_resets(pin_map)
     timer_logic = "\n\n".join(generate_timer(timer, pin_map, indent_level=1) for timer in timers)
     logic = generate_c(ast, pin_map, indent_level=1)
     writes = generate_output_writes(pin_map)
     loop_body = "\n".join(part for part in (resets, timer_logic, logic, writes) if part)
-    declarations = "\n\n".join(
-        part
-        for part in (timer_type, timer_update_function, timer_declarations, output_states)
-        if part
-    )
-
+    
+    # Combine declarations: WiFi globals (if enabled) + timer stuff + output states
+    declarations_parts = [wifi_globals, timer_type, timer_update_function, timer_declarations, output_states]
+    declarations = "\n\n".join(part for part in declarations_parts if part)
+    
+    # Combine includes: WiFi includes (if enabled) + Arduino.h
+    includes = "\n".join(part for part in (wifi_includes, "#include <Arduino.h>") if part)
+    
+    # WiFi init function (if enabled) goes after declarations
+    wifi_init_code = wifi_init_function if wifi_init_function else ""
+    
     return (
-        "#include <Arduino.h>\n\n"
+        f"{includes}\n\n"
         f"{definitions}\n\n"
         f"{declarations}\n\n"
+        f"{wifi_init_code}\n\n"
         "void setup() {\n"
         f"{setup}\n"
         "}\n\n"
@@ -226,7 +241,13 @@ def generate_pin_definitions(pin_map: dict) -> str:
 def generate_pin_setup(pin_map: dict) -> str:
     lines = []
     for variable in pin_map["inputs"].values():
-        mode = "INPUT_PULLUP" if variable.get("pullup", False) else "INPUT"
+        pull = variable.get("pull", "none")
+        if pull == "up":
+            mode = "INPUT_PULLUP"
+        elif pull == "down":
+            mode = "INPUT_PULLDOWN"
+        else:
+            mode = "INPUT"
         lines.append(f"{indent(1)}pinMode({variable['macro']}, {mode});")
     for variable in pin_map["outputs"].values():
         lines.append(f"{indent(1)}pinMode({variable['macro']}, OUTPUT);")
@@ -347,3 +368,59 @@ def collect_condition_inputs(condition: str) -> list[str]:
 def tokenize_condition(condition: str) -> list[str]:
     spaced = condition.replace("(", " ( ").replace(")", " ) ")
     return [token for token in spaced.split() if token]
+
+
+# ===== WiFi Code Generation Functions =====
+
+def generate_wifi_includes(controller_config: dict | None) -> str:
+    """Generate WiFi includes if WiFi is enabled."""
+    if not controller_config or not controller_config.get("wifi_enabled", False):
+        return ""
+    return "#include <WiFi.h>"
+
+
+def generate_wifi_globals(controller_config: dict | None) -> str:
+    """Generate WiFi global variables if WiFi is enabled."""
+    if not controller_config or not controller_config.get("wifi_enabled", False):
+        return ""
+    
+    ssid = controller_config.get("wifi_ssid", "YourSSID")
+    password = controller_config.get("wifi_password", "YourPassword")
+    
+    return (
+        "/* ===== WiFi Configuration ===== */\n"
+        f"const char* ssid = \"{ssid}\";\n"
+        f"const char* password = \"{password}\";\n"
+    )
+
+
+def generate_wifi_init_function(controller_config: dict | None) -> str:
+    """Generate WiFi initialization function if WiFi is enabled."""
+    if not controller_config or not controller_config.get("wifi_enabled", False):
+        return ""
+    
+    mode = controller_config.get("wifi_mode", "STA")
+    if mode == "AP":
+        wifi_mode_code = "WiFi.mode(WIFI_AP);"
+        wifi_begin_code = "WiFi.softAP(ssid, password);"
+    else:
+        wifi_mode_code = "WiFi.mode(WIFI_STA);"
+        wifi_begin_code = "WiFi.begin(ssid, password);"
+    
+    return (
+        "/* ===== WiFi Initialization ===== */\n"
+        "void init_wifi() {\n"
+        f"{indent(1)}{wifi_mode_code}\n"
+        f"{indent(1)}{wifi_begin_code}\n"
+        f"{indent(1)}while (WiFi.status() != WL_CONNECTED) {{\n"
+        f"{indent(2)}delay(500);\n"
+        f"{indent(1)}}}\n"
+        "}"
+    )
+
+
+def generate_wifi_setup_call(controller_config: dict | None) -> str:
+    """Generate WiFi setup call if WiFi is enabled."""
+    if not controller_config or not controller_config.get("wifi_enabled", False):
+        return ""
+    return f"{indent(1)}/* --- System Init: WiFi --- */\n{indent(1)}init_wifi();"
