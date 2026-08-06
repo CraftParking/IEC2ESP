@@ -26,7 +26,6 @@ from app.core.profiles.profile_manager import ProfileManager
 from app.ui import theme
 from app.ui.compile_panel import CompilePanel
 from app.ui.controller_panel import ControllerPanel
-from app.ui.io_mapping_panel import IOMappingPanel
 from app.ui.ladder.canvas import LadderCanvas
 from app.ui.project import Project, ProgramEntry
 from app.ui.variables_panel import VariablesPanel
@@ -38,7 +37,6 @@ APP_TITLE = "IEC2ESP"
 TREE_ITEMS = [
     ("Controller", "controller"),
     ("Variables", "variables"),
-    ("IO Mapping", "io_mapping"),
     ("Compile", "compile"),
 ]
 
@@ -175,24 +173,21 @@ class MainWindow(QMainWindow):
 
         self.variables_panel = VariablesPanel()
         self.controller_panel = ControllerPanel(self.profile_manager)
-        self.io_mapping_panel = IOMappingPanel(self.profile_manager)
         self.compile_panel = CompilePanel()
 
         self._page_widgets = {
             "controller": self.controller_panel,
             "variables": self.variables_panel,
-            "io_mapping": self.io_mapping_panel,
             "compile": self.compile_panel,
         }
         for widget in self._page_widgets.values():
             self.pages.addWidget(widget)
 
-        for panel in (self.variables_panel, self.controller_panel, self.io_mapping_panel):
+        for panel in (self.variables_panel, self.controller_panel):
             panel.changed.connect(self._mark_modified)
-        # Controller type affects the IO mapping panel's pin range; variable
-        # renames affect its tag choices - just refresh it on any such change.
-        self.controller_panel.changed.connect(self.io_mapping_panel.refresh)
-        self.variables_panel.changed.connect(self.io_mapping_panel.refresh)
+        # Variable renames affect the IO mapping table's tag choices - just
+        # refresh it (part of the Controller page now) on any such change.
+        self.variables_panel.changed.connect(self.controller_panel.refresh)
 
         self._populate_tree()
 

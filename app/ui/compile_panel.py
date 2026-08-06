@@ -124,7 +124,7 @@ class CompilePanel(QWidget):
             code = compile_programs_to_c(program_texts, main_name, io_mapping, controller_config)
         except KeyError as exc:
             missing = exc.args[0] if exc.args else "?"
-            self._show_issues(issues + [f"[ERROR] '{missing}' has no IO mapping - add it in IO Mapping"])
+            self._show_issues(issues + [f"[ERROR] '{missing}' has no IO mapping - add it on the Controller page"])
             self.output.clear()
             self._last_generated_code = None
             self.save_btn.setEnabled(False)
