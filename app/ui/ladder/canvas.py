@@ -357,14 +357,18 @@ class RungItem(QGraphicsItem):
         # Left power rail spanning every branch row.
         painter.drawLine(QPointF(LEFT_RAIL_X, top_y), QPointF(LEFT_RAIL_X, bottom_y))
 
-        # Per-branch wire from the rail across to the merge point, under
-        # wherever contacts are (contacts paint their own short wire
-        # segments on top, so this is only visible past the last contact).
+        # Per-branch wire from the last contact across to the merge point.
+        # Contacts paint their own wire stubs with a gap at the bars, so
+        # this must stop at the last contact rather than spanning the
+        # whole branch - otherwise it shows straight through every
+        # contact's gap and the open-circuit break disappears visually.
         wire_pen = QPen(WIRE_COLOR, WIRE_WIDTH)
         painter.setPen(wire_pen)
-        for branch_idx in range(branch_count):
+        for branch_idx, branch in enumerate(self.rung.branches):
             y = RUNG_TOP_PAD + branch_idx * ROW_HEIGHT + WIRE_Y_IN_ROW
-            painter.drawLine(QPointF(LEFT_RAIL_X, y), QPointF(self._merge_x, y))
+            start_x = LEFT_RAIL_X + len(branch.contacts) * CONTACT_SLOT_WIDTH
+            if start_x < self._merge_x:
+                painter.drawLine(QPointF(start_x, y), QPointF(self._merge_x, y))
 
         # Right rail reconnecting every branch at the merge point.
         painter.setPen(rail_pen)
