@@ -1,0 +1,99 @@
+{
+  "name": "XIAO ESP32-C5",
+  "pin_count": 29,
+  "type_mapping": {
+    "digital_in": "Digital Input",
+    "digital_out": "Digital Output",
+    "analog_in": "Analog Input",
+    "analog_out": "Analog Output",
+    "pwm": "PWM Output",
+    "uart_tx": "UART TX",
+    "uart_rx": "UART RX"
+  },
+  "pins": [
+    {
+      "pin": 1,
+      "label": "D0 (GPIO1)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 0,
+      "label": "D1 (GPIO0)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 25,
+      "label": "D2 (GPIO25)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 7,
+      "label": "D3 (GPIO7)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"]
+    },
+    {
+      "pin": 23,
+      "label": "D4 (GPIO23)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default I2C SDA (Wire)"
+    },
+    {
+      "pin": 24,
+      "label": "D5 (GPIO24)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default I2C SCL (Wire)"
+    },
+    {
+      "pin": 11,
+      "label": "D6 (GPIO11)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_tx", "digital_out"],
+      "note": "Default UART TX"
+    },
+    {
+      "pin": 12,
+      "label": "D7 (GPIO12)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_rx", "digital_in"],
+      "note": "Default UART RX"
+    },
+    {
+      "pin": 8,
+      "label": "D8 (GPIO8)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default SPI SCK"
+    },
+    {
+      "pin": 9,
+      "label": "D9 (GPIO9)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default SPI MISO"
+    },
+    {
+      "pin": 10,
+      "label": "D10 (GPIO10)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default SPI MOSI"
+    }
+  ]
+}

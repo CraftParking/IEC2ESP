@@ -1,0 +1,100 @@
+{
+  "name": "XIAO ESP32-C6",
+  "pin_count": 24,
+  "type_mapping": {
+    "digital_in": "Digital Input",
+    "digital_out": "Digital Output",
+    "analog_in": "Analog Input",
+    "analog_out": "Analog Output",
+    "pwm": "PWM Output",
+    "uart_tx": "UART TX",
+    "uart_rx": "UART RX"
+  },
+  "pins": [
+    {
+      "pin": 0,
+      "label": "D0 (GPIO0)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 1,
+      "label": "D1 (GPIO1)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 2,
+      "label": "D2 (GPIO2)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 21,
+      "label": "D3 (GPIO21)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Digital only - no ADC on this pin"
+    },
+    {
+      "pin": 22,
+      "label": "D4 (GPIO22)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default I2C SDA (Wire)"
+    },
+    {
+      "pin": 23,
+      "label": "D5 (GPIO23)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default I2C SCL (Wire)"
+    },
+    {
+      "pin": 16,
+      "label": "D6 (GPIO16)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_tx", "digital_out"],
+      "note": "Default UART TX"
+    },
+    {
+      "pin": 17,
+      "label": "D7 (GPIO17)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_rx", "digital_in"],
+      "note": "Default UART RX"
+    },
+    {
+      "pin": 19,
+      "label": "D8 (GPIO19)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default SPI CLK"
+    },
+    {
+      "pin": 20,
+      "label": "D9 (GPIO20)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default SPI MISO"
+    },
+    {
+      "pin": 18,
+      "label": "D10 (GPIO18)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm"],
+      "note": "Default SPI MOSI"
+    }
+  ]
+}

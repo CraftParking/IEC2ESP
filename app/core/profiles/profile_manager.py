@@ -18,7 +18,14 @@ class ProfileManager:
     
     def _load_builtin_profiles(self) -> None:
         """Load built-in profiles that are always available."""
-        builtin_files = ["esp32.json", "custom.json"]
+        builtin_files = [
+            "esp32.json",
+            "xiao-esp32s3.json",
+            "xiao-esp32c6.json",
+            "xiao-esp32c5.json",
+            "cyd.json",
+            "custom.json",
+        ]
         
         for filename in builtin_files:
             filepath = os.path.join(self.profiles_dir, filename)

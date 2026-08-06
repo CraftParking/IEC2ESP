@@ -1,0 +1,101 @@
+{
+  "name": "XIAO ESP32-S3",
+  "pin_count": 45,
+  "type_mapping": {
+    "digital_in": "Digital Input",
+    "digital_out": "Digital Output",
+    "analog_in": "Analog Input",
+    "analog_out": "Analog Output",
+    "pwm": "PWM Output",
+    "uart_tx": "UART TX",
+    "uart_rx": "UART RX"
+  },
+  "pins": [
+    {
+      "pin": 1,
+      "label": "D0 (GPIO1)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 2,
+      "label": "D1 (GPIO2)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 3,
+      "label": "D2 (GPIO3)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "flags": ["boot_pin"],
+      "note": "Strapping pin (selects JTAG signal source at boot) - use with caution"
+    },
+    {
+      "pin": 4,
+      "label": "D3 (GPIO4)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"]
+    },
+    {
+      "pin": 5,
+      "label": "D4 (GPIO5)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "note": "Default I2C SDA (Wire)"
+    },
+    {
+      "pin": 6,
+      "label": "D5 (GPIO6)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "note": "Default I2C SCL (Wire)"
+    },
+    {
+      "pin": 43,
+      "label": "D6 (GPIO43)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_tx", "digital_out"],
+      "note": "UART0 TX - used for serial/programming"
+    },
+    {
+      "pin": 44,
+      "label": "D7 (GPIO44)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["uart_rx", "digital_in"],
+      "note": "UART0 RX - used for serial/programming"
+    },
+    {
+      "pin": 7,
+      "label": "D8 (GPIO7)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "note": "Default SPI SCK"
+    },
+    {
+      "pin": 8,
+      "label": "D9 (GPIO8)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "note": "Default SPI MISO"
+    },
+    {
+      "pin": 9,
+      "label": "D10 (GPIO9)",
+      "tag": "",
+      "pull": "none",
+      "capabilities": ["digital_in", "digital_out", "pwm", "analog_in"],
+      "note": "Default SPI MOSI"
+    }
+  ]
+}
