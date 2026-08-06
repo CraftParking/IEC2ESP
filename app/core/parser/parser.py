@@ -1,4 +1,4 @@
-from app.core.parser.ast_nodes import AssignNode, IfNode, ProgramNode, TimerNode
+from app.core.parser.ast_nodes import AssignNode, IfNode, JsrNode, ProgramNode, TimerNode
 
 
 class Parser:
@@ -32,6 +32,8 @@ class Parser:
     def parse_statement(self, active_condition=None):
         if self.current()[0] == "IF":
             return self.parse_if()
+        if self.current()[0] == "JSR":
+            return self.parse_jsr()
         if self.current()[0] == "IDENTIFIER":
             if self.peek()[0] == "LPAREN":
                 return self.parse_timer_call(active_condition)
@@ -110,3 +112,9 @@ class Parser:
         self.eat("SEMICOLON")
         input_source = active_condition if in_value == "TRUE" else None
         return TimerNode(name, in_value, int(pt), input_source)
+
+    def parse_jsr(self):
+        self.eat("JSR")
+        name = self.eat("IDENTIFIER")
+        self.eat("SEMICOLON")
+        return JsrNode(name)

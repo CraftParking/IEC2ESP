@@ -48,3 +48,13 @@ class TimerNode:
             f"input_source={self.input_source!r}"
             ")"
         )
+
+
+class JsrNode:
+    """Jump to Subroutine: calls another program's compiled function."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"JsrNode(name={self.name!r})"

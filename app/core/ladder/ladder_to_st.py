@@ -8,7 +8,14 @@ def ladder_to_st(ladder_code: str) -> str:
         condition = convert_condition(condition_text, timers)
         output = output.strip()
 
-        if is_timer_output(output):
+        if is_jsr_output(output):
+            subroutine_name = parse_jsr_output(output)
+            blocks.append(
+                f"IF {condition} THEN\n"
+                f"JSR {subroutine_name};\n"
+                "END_IF;"
+            )
+        elif is_timer_output(output):
             timer_name, preset_time = parse_timer_output(output)
             blocks.append(
                 f"IF {condition} THEN\n"
@@ -44,6 +51,8 @@ def collect_timers(lines: list[str]) -> set[str]:
     timers = set()
     for line in lines:
         output = line.split("->", 1)[1].strip()
+        if is_jsr_output(output):
+            continue
         if is_timer_output(output):
             timer_name, _ = parse_timer_output(output)
             timers.add(timer_name)
@@ -63,3 +72,11 @@ def is_timer_output(output: str) -> bool:
 def parse_timer_output(output: str) -> tuple[str, str]:
     timer_name, preset_time = output.split("(", 1)
     return timer_name.strip(), preset_time.rstrip(")").strip()
+
+
+def is_jsr_output(output: str) -> bool:
+    return output.startswith("JSR(") and output.endswith(")")
+
+
+def parse_jsr_output(output: str) -> str:
+    return output[len("JSR("):-1].strip()

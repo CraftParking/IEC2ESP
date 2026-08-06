@@ -1,4 +1,6 @@
-from app.core.parser.ast_nodes import AssignNode, IfNode, ProgramNode, TimerNode
+import re
+
+from app.core.parser.ast_nodes import AssignNode, IfNode, JsrNode, ProgramNode, TimerNode
 
 
 INDENT = " " * 4
@@ -62,6 +64,73 @@ def generate_full_program(ast, io_mapping: dict | None = None, controller_config
     )
 
 
+def generate_multi_program_c(
+    programs: dict, main_name: str, io_mapping: dict | None = None, controller_config: dict | None = None
+) -> str:
+    """Like generate_full_program, but for a Main Program plus any number of
+    Sub Programs. Every Sub Program becomes its own C function (SBR_<name>),
+    called only where a JsrNode in some program's AST calls it; only the
+    Main Program's logic runs unconditionally in loop(). Pins/timers/output
+    state are collected across every program's AST, since they share one
+    flat global namespace - see docs/roadmap.md for the one known
+    consequence of that (Sub Program timers still tick every scan, not only
+    on scans where their Sub is actually called)."""
+    if main_name not in programs:
+        raise KeyError(f"Main program {main_name!r} not found in programs")
+
+    combined_ast = ProgramNode(
+        [statement for ast in programs.values() for statement in ast.statements]
+    )
+    pin_map = build_pin_map(combined_ast, io_mapping)
+    timers = collect_timers(combined_ast)
+
+    wifi_includes = generate_wifi_includes(controller_config)
+    wifi_globals = generate_wifi_globals(controller_config)
+    wifi_init_function = generate_wifi_init_function(controller_config)
+    wifi_setup_call = generate_wifi_setup_call(controller_config)
+
+    definitions = generate_pin_definitions(pin_map)
+    timer_type = generate_timer_type(timers)
+    timer_update_function = generate_timer_update_function(timers)
+    timer_declarations = generate_timer_declarations(timers)
+    output_states = generate_output_state_declarations(pin_map)
+
+    setup_parts = [wifi_setup_call, generate_pin_setup(pin_map), generate_timer_setup(timers)]
+    setup = "\n".join(part for part in setup_parts if part)
+
+    subroutine_functions = "\n\n".join(
+        f"void {subroutine_function_name(name)}() {{\n{generate_c(ast, pin_map, indent_level=1)}\n}}"
+        for name, ast in programs.items()
+        if name != main_name
+    )
+
+    resets = generate_output_state_resets(pin_map)
+    timer_logic = "\n\n".join(generate_timer(timer, pin_map, indent_level=1) for timer in timers)
+    main_logic = generate_c(programs[main_name], pin_map, indent_level=1)
+    writes = generate_output_writes(pin_map)
+    loop_body = "\n".join(part for part in (resets, timer_logic, main_logic, writes) if part)
+
+    declarations_parts = [wifi_globals, timer_type, timer_update_function, timer_declarations, output_states]
+    declarations = "\n\n".join(part for part in declarations_parts if part)
+
+    includes = "\n".join(part for part in (wifi_includes, "#include <Arduino.h>") if part)
+    wifi_init_code = wifi_init_function if wifi_init_function else ""
+
+    return (
+        f"{includes}\n\n"
+        f"{definitions}\n\n"
+        f"{declarations}\n\n"
+        f"{wifi_init_code}\n\n"
+        f"{subroutine_functions}\n\n"
+        "void setup() {\n"
+        f"{setup}\n"
+        "}\n\n"
+        "void loop() {\n"
+        f"{loop_body}\n"
+        "}"
+    )
+
+
 def generate_c(ast, pin_map: dict, indent_level: int = 0) -> str:
     if isinstance(ast, ProgramNode):
         return "\n\n".join(
@@ -75,6 +144,8 @@ def generate_c(ast, pin_map: dict, indent_level: int = 0) -> str:
         return generate_assign(ast, pin_map, indent_level)
     if isinstance(ast, TimerNode):
         return ""
+    if isinstance(ast, JsrNode):
+        return generate_jsr(ast, indent_level)
     raise TypeError(f"Unsupported AST node: {type(ast).__name__}")
 
 
@@ -145,6 +216,17 @@ def generate_timer_input(node: TimerNode, pin_map: dict) -> str:
     if node.input_source:
         return generate_condition(node.input_source, pin_map)
     return VALUE_MACROS[node.in_value]
+
+
+def generate_jsr(node: JsrNode, indent_level: int = 0) -> str:
+    return f"{indent(indent_level)}{subroutine_function_name(node.name)}();"
+
+
+def subroutine_function_name(name: str) -> str:
+    sanitized = re.sub(r"\W", "_", name)
+    if sanitized and sanitized[0].isdigit():
+        sanitized = f"_{sanitized}"
+    return f"SBR_{sanitized}"
 
 
 def build_pin_map(ast, io_mapping: dict | None = None) -> dict:
@@ -222,6 +304,8 @@ def collect_variables(ast) -> tuple[list[str], list[str]]:
             if node.input_source:
                 for variable in collect_condition_inputs(node.input_source):
                     add_once(inputs, variable)
+        elif isinstance(node, JsrNode):
+            pass  # a call contributes no pin/variable of its own
         else:
             raise TypeError(f"Unsupported AST node: {type(node).__name__}")
 
